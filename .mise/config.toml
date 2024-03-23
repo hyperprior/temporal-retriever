@@ -5,6 +5,7 @@ run = "poetry install --no-root"
 run = "poetry run uvicorn temporal_retriever.app:app --host 0.0.0.0 --port 8000"
 
 [tasks."docker:build"]
+depends = ["git:push"]
 run = """
   POETRY_VERSION=$(poetry version -s)
   echo "Using $POETRY_VERSION"
@@ -15,7 +16,12 @@ run = """
 
 [tasks."docker:push"]
 depends = ["docker:build"]
-run = "docker push hyperprior/temporal-retriever:$(TAG)"
+run = """
+  POETRY_VERSION=$(poetry version -s)
+
+  docker push "$DOCKER_IMAGE:$POETRY_VERSION"
+  docker push "$DOCKER_IMAGE:latest"
+"""
 
 [tasks."docker:run"]
 run = "docker run -p 8000:8000 temporal-retriever"
@@ -26,31 +32,19 @@ run = "git pull --rebase"
 
 [tasks."git:push"]
 description = "interactively push changes to git"
-dependencies = ["git:rebase"]
 run = """
   git add .
   git commit
   git push
 """
 
-
 [tasks."update:patch"]
 description = "push changes to github, tag current version to docker and push, patch update version"
+depends = ["docker:push"]
 run = """
-  git add .
-
-  POETRY_VERSION=$(poetry version -s)
-  echo "Using $POETRY_VERSION"
-
-  DOCKER_IMAGE="hyperprior/temporal-retriever"
-  docker build -t "$DOCKER_IMAGE:$POETRY_VERSION" -t "$DOCKER_IMAGE:latest" .
-  docker push "$DOCKER_IMAGE:$POETRY_VERSION"
-  docker push "$DOCKER_IMAGE:latest"
-
   poetry version patch
   poetry update
 """
-
 
 [tasks.test]
 run = "docker-compose up --build"
