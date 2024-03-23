@@ -25,6 +25,7 @@ run = "docker run -p 8000:8000 temporal-retriever"
 run = "git pull --rebase"
 
 [tasks."git:push"]
+description = "interactively push changes to git"
 dependencies = ["git:rebase"]
 run = """
   git add .
