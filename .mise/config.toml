@@ -19,6 +19,7 @@ depends = ["docker:build"]
 run = """
   POETRY_VERSION=$(poetry version -s)
 
+  DOCKER_IMAGE="hyperprior/temporal-retriever"
   docker push "$DOCKER_IMAGE:$POETRY_VERSION"
   docker push "$DOCKER_IMAGE:latest"
 """
