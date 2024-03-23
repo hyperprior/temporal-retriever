@@ -1,7 +1,5 @@
 FROM python:3.11
 
-WORKDIR /app
-
 COPY pyproject.toml poetry.lock .
 
 RUN pip install --no-cache-dir poetry && \
@@ -13,4 +11,7 @@ COPY temporal_retriever .
 
 EXPOSE 8000
 
-ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["ls"]
+
+
+# ENTRYPOINT ["uvicorn", "temporal_retriever.app:app", "--host", "0.0.0.0", "--port", "8000"]
