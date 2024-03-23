@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 
-app = FastAPI()
+app: FastAPI = FastAPI()
 
 
-@app.get("/health")
-def health_check():
+@app.get("/health", status_code=status.HTTP_200_OK)
+async def health_check():
+    """Health check endpoint."""
     return
