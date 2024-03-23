@@ -5,6 +5,7 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock .
 
 RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
     poetry install --no-root --no-dev --no-interaction --no-cache && \
     rm -rf /root/.cache
 

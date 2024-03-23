@@ -1,11 +1,33 @@
 [tasks."deps:install"]
 run = "poetry install --no-root"
 
+[tasks."serve:dev"]
+run = "poetry run uvicorn uvicorn temporal_retriever.app:app --host 0.0.0.0 --port 8000"
+
 [tasks."docker:build"]
-run = "docker build -t temporal-retriever ."
+run = "docker build -t hyperprior/temporal-retriever:$(TAG) ."
 
 [tasks."docker:push"]
-run = "docker push hyperprior/temporal-retriever:tagname"
+run = "docker push hyperprior/temporal-retriever:$(TAG)"
 
 [tasks."docker:run"]
 run = "docker run -p 8000:8000 temporal-retriever"
+
+
+[tasks."update:patch"]
+description = "push changes to github, tag current version to docker and push, patch update version"
+run = """
+  git add .
+  git commit -m "Automated commit before Docker build and push"
+  git push
+
+  POETRY_VERSION=$(poetry version -s)
+  echo "Using $POETRY_VERSION"
+
+  DOCKER_IMAGE="hyperprior/temporal-retriever"
+  docker build -t "$DOCKER_IMAGE:$POETRY_VERSION" .
+  docker push "$DOCKER_IMAGE:$POETRY_VERSION"
+
+  poetry version patch
+  poetry update
+"""

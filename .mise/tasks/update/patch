@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# mise description="Automate update and push to git and docker"
+
+git add .
+git commit -m "Automated commit before Docker build and push"
+git push
+
+# Get the current poetry version
+POETRY_VERSION=$(poetry version -s)
+echo "Using $POETRY_VERSION"
+
+DOCKER_IMAGE="hyperprior/temporal-retriever"
+docker build -t "$DOCKER_IMAGE:$POETRY_VERSION" .
+
+docker push "$DOCKER_IMAGE:$POETRY_VERSION"
+
+poetry version patch
+poetry update
