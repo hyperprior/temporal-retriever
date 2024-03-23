@@ -32,3 +32,7 @@ run = """
   poetry version patch
   poetry update
 """
+
+
+[tasks.test]
+run = "docker-compose up --build"

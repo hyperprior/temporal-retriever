@@ -1,0 +1,16 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: ['8000:8000']
+    volumes: ['./api:/app']
+    environment: [PYTHONUNBUFFERED=1]
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on: [api]
+    volumes: ['./tests:/tests']
+    command: pytest -v
