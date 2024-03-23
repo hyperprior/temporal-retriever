@@ -1,0 +1,11 @@
+[tasks."deps:install"]
+run = "poetry install --no-root"
+
+[tasks."docker:build"]
+run = "docker build -t temporal-retriever ."
+
+[tasks."docker:push"]
+run = "docker push hyperprior/temporal-retriever:tagname"
+
+[tasks."docker:run"]
+run = "docker run -p 8000:8000 temporal-retriever"
