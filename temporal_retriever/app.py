@@ -7,3 +7,8 @@ app: FastAPI = FastAPI()
 async def health_check():
     """Health check endpoint."""
     return
+
+
+@app.post("/analyze")
+async def analyze_datasets(request: None) -> None:
+    pass

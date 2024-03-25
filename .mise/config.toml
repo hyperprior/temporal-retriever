@@ -47,5 +47,9 @@ run = """
   poetry update
 """
 
-[tasks.test]
+[tasks."test:unit"]
+description = "unit tests"
+run = "poetry run pytest -vvv -m unit"
+
+[tasks."test:integration"]
 run = "docker-compose up --build"
