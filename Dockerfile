@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir poetry && \
     poetry install --no-root --no-dev --no-interaction --no-cache && \
     rm -rf /root/.cache
 
-COPY temporal_retriever .
+COPY temporal_retriever /temporal_retriever
 
 EXPOSE 8000
 
