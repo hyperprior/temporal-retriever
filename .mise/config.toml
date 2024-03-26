@@ -35,7 +35,7 @@ run = """
 """
 
 [tasks."docker:run"]
-run = "docker run -p 8000:8000 temporal-retriever"
+run = "docker run -p 8000:8000 hyperprior/temporal-retriever:latest"
 
 
 [tasks."git:rebase"]
