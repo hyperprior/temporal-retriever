@@ -1,7 +1,6 @@
 import pytest
 import requests
 
-from temporal_retriever.app import app
 
 # from fastapi import TestClient
 

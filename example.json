@@ -1,0 +1,32 @@
+{
+  "bankStatement": {
+    "name": "Daily Transactions from Savings Account",
+    "data": [
+      {
+        "date": "2014-09-21",
+        "accountBalance": 23,
+      }
+    ]
+  },
+  "creditCardTransactions": {
+    "data": [
+      {
+        "date": "2014-09-22",
+        "totalWithTax: 55,
+        totalTax: 1,
+        totalShipping: 3
+      }
+    ]
+  },
+  "analyticsOptions": {
+    "correlations": [
+      {
+        "id": "x1",
+        "type": "prophet",
+        "fromData": "salesOrder", fromIndex: 'totalWithTax', toData: 'purchaseOrder', toIndex: 'totalWithTax'
+      },
+      { id: 'x2', type: 'prophet', fromData: 'salesOrder', fromIndex: 'totalWithTax', toData: 'inventoryDemandInbound', toIndex: 'totalWithTax'
+      },
+    ]
+  }
+}

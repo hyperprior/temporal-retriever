@@ -1,8 +1,18 @@
 [tasks."deps:install"]
 run = "poetry install --no-root"
 
+[tasks."deps:add"]
+args = ["dependency"]
+run = "poetry add $dependency"
+
+
+[tasks."deps:add-dev"]
+args = ["dependency"]
+run = "poetry add --group=dev $dependency"
+
+
 [tasks."serve:dev"]
-run = "poetry run uvicorn temporal_retriever.app:app --host 0.0.0.0 --port 8000"
+run = "poetry run uvicorn temporal_retriever.app:app --host 0.0.0.0 --port 8000 --reload"
 
 [tasks."docker:build"]
 depends = ["git:push"]
@@ -53,3 +63,10 @@ run = "poetry run pytest -vvv -m unit"
 
 [tasks."test:integration"]
 run = "docker-compose up --build"
+
+[tasks."synthesize"]
+run = "poetry run python -m synthesize_data"
+
+
+[tasks.notebook]
+run = "poetry run jupyter lab"

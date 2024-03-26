@@ -3,7 +3,7 @@
 from functools import cached_property
 
 import pandas as pd
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 
 class Correlation(BaseModel):
@@ -25,23 +25,24 @@ class Document(BaseModel):
     description: str | None = None
     data: list[Observation]
 
-    @validator("data")
-    def validate_observations_have_date_field(
-        self, v: list[Observation]
-    ) -> list[Observation]:
-        """All temporal datasets must have at least a date field,
-        else they would not be temporal."""
-        for observation in v:
-            if not observation.get("date"):
-                raise ValueError("missing field `date` for observation")
-        return v
+    # @validator("data")
+    # def validate_observations_have_date_field(
+    #     self, v: list[Observation]
+    # ) -> list[Observation]:
+    #     """All temporal datasets must have at least a date field,
+    #     else they would not be temporal."""
+    #     for observation in v:
+    #         if not observation.get("date"):
+    #             raise ValueError("missing field `date` for observation")
+    #     return v
+    #
 
 
 class AnalysisRequest(BaseModel):
     data: dict[str, Document]
     # targets: Optional[]
     # covariates:
-    correlations: Correlation
+    analyticsOptions: dict
     # correlations:
     forecast: bool = True
     aggregations: dict[str, str] | None = None
@@ -60,3 +61,6 @@ class AnalysisRequest(BaseModel):
             data.group_by("date").agg(self.aggregations).reset_index()
 
         return data.sort_values("date", ascending=True)
+
+
+AnalysisRequest = dict
