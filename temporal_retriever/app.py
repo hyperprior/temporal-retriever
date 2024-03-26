@@ -43,8 +43,7 @@ def predict(
 
     model.fit(series)
 
-    forecast = model.predict(n=prediction_horizon,
-                             num_samples=num_samples).all_values()
+    forecast = model.predict(n=prediction_horizon, num_samples=num_samples).all_values()
     predictions = pd.DataFrame(
         np.quantile(forecast, quantiles, axis=-1)
         .reshape(len(quantiles), prediction_horizon)
@@ -64,6 +63,8 @@ def predict(
 
 
 def correlate(from_series: TimeSeries, to_series: TimeSeries, max_lag: int = 14):
+    if not (len(from_series) >= 14 and len(to_series) >= 14):
+        return None
     return granger_causality_tests(
         remove_trend(from_series), remove_trend(to_series), maxlag=max_lag
     )
