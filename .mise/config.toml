@@ -14,7 +14,6 @@ run = "poetry add --group=dev $dependency"
 run = "poetry run uvicorn temporal_retriever.app:app --host 0.0.0.0 --port 8000 --reload"
 
 [tasks."docker:build"]
-depends = ["git:push"]
 run = """
   POETRY_VERSION=$(poetry version -s)
   echo "Using $POETRY_VERSION"
