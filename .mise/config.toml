@@ -5,7 +5,6 @@ run = "poetry install --no-root"
 args = ["dependency"]
 run = "poetry add $dependency"
 
-
 [tasks."deps:add-dev"]
 args = ["dependency"]
 run = "poetry add --group=dev $dependency"

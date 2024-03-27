@@ -160,3 +160,14 @@ cython_debug/
 #.idea/
 
 temp/
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+
