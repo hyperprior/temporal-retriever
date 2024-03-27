@@ -12,6 +12,7 @@
     poetry
     httpie
     jq
+    ruff
     jqp
   ];
 

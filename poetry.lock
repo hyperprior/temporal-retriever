@@ -582,25 +582,25 @@ files = [
 
 [[package]]
 name = "cmdstanpy"
-version = "1.2.1"
+version = "1.2.2"
 description = "Python interface to CmdStan"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "cmdstanpy-1.2.1-py3-none-any.whl", hash = "sha256:950b31d0e5ca80c118ced24e5cebf18841eee9c553a6184e9a96fde4d536da10"},
-    {file = "cmdstanpy-1.2.1.tar.gz", hash = "sha256:09de766c3937d1db213f83c85722d6273aecf7f7c30a17d7c14835168892cb9a"},
+    {file = "cmdstanpy-1.2.2-py3-none-any.whl", hash = "sha256:b18cf61f9cae6babf4b26ab06a2c3572a64fc7781017ededdfa073430f8e29eb"},
+    {file = "cmdstanpy-1.2.2.tar.gz", hash = "sha256:09bcadd54a582090d722ba3e76d516db696275ab861ef71805195d0df2dd34a9"},
 ]
 
 [package.dependencies]
 numpy = ">=1.21"
 pandas = "*"
-stanio = ">=0.3.0,<0.4.0"
+stanio = ">=0.4.0,<2.0.0"
 tqdm = "*"
 
 [package.extras]
 all = ["xarray"]
-docs = ["matplotlib", "numpydoc", "sphinx", "sphinx-gallery", "sphinx-rtd-theme"]
-tests = ["flake8", "mypy", "pylint", "pytest", "pytest-cov", "pytest-order", "tqdm", "xarray"]
+docs = ["ipykernel", "ipython", "ipywidgets", "matplotlib", "nbsphinx", "pydata-sphinx-theme (<0.9)", "sphinx (>5,<6)", "sphinx-copybutton", "xarray"]
+test = ["flake8", "mypy", "pylint", "pytest", "pytest-cov", "pytest-order", "xarray"]
 
 [[package]]
 name = "colorama"
@@ -1237,13 +1237,13 @@ python-dateutil = "*"
 
 [[package]]
 name = "httpcore"
-version = "1.0.4"
+version = "1.0.5"
 description = "A minimal low-level HTTP client."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "httpcore-1.0.4-py3-none-any.whl", hash = "sha256:ac418c1db41bade2ad53ae2f3834a3a0f5ae76b56cf5aa497d2d033384fc7d73"},
-    {file = "httpcore-1.0.4.tar.gz", hash = "sha256:cb2839ccfcba0d2d3c1131d3c3e26dfc327326fbe7a5dc0dbfe9f6c9151bb022"},
+    {file = "httpcore-1.0.5-py3-none-any.whl", hash = "sha256:421f18bac248b25d310f3cacd198d55b8e6125c107797b609ff9b7a6ba7991b5"},
+    {file = "httpcore-1.0.5.tar.gz", hash = "sha256:34a38e2f9291467ee3b44e89dd52615370e152954ba21721378a87b2960f7a61"},
 ]
 
 [package.dependencies]
@@ -1254,7 +1254,7 @@ h11 = ">=0.13,<0.15"
 asyncio = ["anyio (>=4.0,<5.0)"]
 http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
-trio = ["trio (>=0.22.0,<0.25.0)"]
+trio = ["trio (>=0.22.0,<0.26.0)"]
 
 [[package]]
 name = "httpx"
@@ -3897,18 +3897,18 @@ files = [
 
 [[package]]
 name = "sqlglot"
-version = "23.0.5"
+version = "23.2.0"
 description = "An easily customizable SQL parser and transpiler"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "sqlglot-23.0.5-py3-none-any.whl", hash = "sha256:12aadd50775209573e7dfa0136f5769da865de3d5954e8e88a02eb0081d1ad6b"},
-    {file = "sqlglot-23.0.5.tar.gz", hash = "sha256:68386c5aebdc9a1c74e2a623f6373805a2f839d205d46945258dde5ac692d515"},
+    {file = "sqlglot-23.2.0-py3-none-any.whl", hash = "sha256:cb041741dfabb95cb0b0d4fbac6b76334a02f5dfb35c7f171404f26bf8895ebd"},
+    {file = "sqlglot-23.2.0.tar.gz", hash = "sha256:a4436fa33e58492495a3225f0f856121f2f3497a6b53e71a1d933334b70820c5"},
 ]
 
 [package.extras]
 dev = ["duckdb (>=0.6)", "maturin (>=1.4,<2.0)", "mypy", "pandas", "pandas-stubs", "pdoc", "pre-commit", "pyspark", "python-dateutil", "ruff (==0.3.2)", "types-python-dateutil", "typing-extensions"]
-rs = ["sqlglotrs (==0.1.2)"]
+rs = ["sqlglotrs (==0.1.3)"]
 
 [[package]]
 name = "stack-data"
@@ -3931,13 +3931,13 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
 name = "stanio"
-version = "0.3.0"
-description = ""
+version = "0.5.0"
+description = "Utilities for preparing Stan inputs and processing Stan outputs"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "stanio-0.3.0-py3-none-any.whl", hash = "sha256:2d34b5ebe9ad8fcd137437209bf4b53846d88dbe933441aca5d83fd32f9b0c7e"},
-    {file = "stanio-0.3.0.tar.gz", hash = "sha256:0c504ae671b8d526a1da71185ac02a2775508ffe6d3db91f242eac85bcf6046f"},
+    {file = "stanio-0.5.0-py3-none-any.whl", hash = "sha256:412f8ede127968be51e074be6a6ca1e66d5a8ed50805e2fed89b76868e7332ae"},
+    {file = "stanio-0.5.0.tar.gz", hash = "sha256:dee429314d965f390181afa8ff7ff8144446eeb58cc2547ccc108ba73e6744e2"},
 ]
 
 [package.dependencies]
@@ -3945,6 +3945,7 @@ numpy = "*"
 
 [package.extras]
 test = ["pandas", "pytest", "pytest-cov"]
+ujson = ["ujson (>=5.5.0)"]
 
 [[package]]
 name = "starlette"
@@ -4696,4 +4697,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6c25e214a0f9184d9f8bfab798b29175263d32e0f492adcf54f670d023af2aec"
+content-hash = "fec0a0735c027136d0f4160a7dcbe2e35d138f6809e75892f1af8e1cc68a5eb5"

@@ -1,13 +1,14 @@
+from typing import Literal
 import numpy as np
 import pandas as pd
 from darts import TimeSeries
-from darts.metrics import mape
-from darts.models import Prophet
 from darts.utils.statistics import granger_causality_tests, remove_trend
 from fastapi import FastAPI, status
-from icecream import ic
+from pydash import get
+from prophet import Prophet
+from prophet.utilities import regressor_coefficients
+from pydantic import BaseModel, Field, conint
 
-from temporal_retriever.requests import AnalysisRequest
 
 app: FastAPI = FastAPI()
 
@@ -66,11 +67,37 @@ def correlate(from_series: TimeSeries, to_series: TimeSeries, max_lag: int = 14)
     )
 
 
-@app.post("/analyze")
-async def analyze_datasets(request: AnalysisRequest):
-    prediction_horizon = 14
+class Correlation(BaseModel):
+    id: str
+    type: Literal["prophet", "granger"] = "prophet"  # TODO make literals
+    from_data: str = Field(..., alias="fromData")
+    from_index: str = Field(..., alias="fromIndex")
+    to_data: str = Field(..., alias="toData")
+    to_index: str = Field(..., alias="toIndex")
+    frequency: Literal["D", "W", "H", "m"] = Field(
+        "D",
+        description="granularity of the dataset, will be used for forecasting and aggregating raw data so that there are no overlaps in the time index",
+    )
+    aggregate: Literal["sum", "min", "max", "mean", "meadian"] = Field(
+        "sum",
+        description="to avoid duplicates in the time index, will aggregate the values by the `freq` field using the supplied operation",
+    )
+    prediction_horizon: conint(ge=1) = 7
     quantiles: list[tuple] = (0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)
-    correlations = request.get("analyticsOptions").get("correlations")
+
+
+class AnalyticsOptions(BaseModel):
+    correlations: list[Correlation]
+
+
+class AnalyticsRequest(BaseModel):
+    documents: dict
+    analytics_options: AnalyticsOptions = Field(..., alias="analyticsOptions")
+
+
+@app.post("/analyze")
+async def analyze_datasets(request: AnalyticsRequest):
+    correlations = request.analytics_options.correlations
 
     output = {"correlations": {}}
 
@@ -97,16 +124,20 @@ async def analyze_datasets(request: AnalysisRequest):
     }
 
     for correlation in correlations:
-        covariate_name: str = correlation.get("fromIndex")
+        quantiles = correlation.quantiles
+        prediction_horizon = correlation.prediction_horizon
+        covariate_name: str = correlation.from_index
 
         from_data = [
             {"ds": data.get("date"), "y": get(data, covariate_name)}
-            for data in request.get(correlation["fromData"])["data"]
+            for data in request.documents.get(correlation.from_data).get("data")
         ]
 
         covariates = pd.DataFrame(from_data)
         covariates["ds"] = pd.to_datetime(covariates["ds"])
-        covariates = covariates.groupby("ds").sum().reset_index()
+        covariates = (
+            covariates.groupby("ds").agg({"y": correlation.aggregate}).reset_index()
+        )
 
         covariate_model = Prophet()
         covariate_model.fit(covariates)
@@ -129,15 +160,15 @@ async def analyze_datasets(request: AnalysisRequest):
 
         # predict(covariates, prediction_horizon=14, num_samples=1)
 
-        target_name: str = correlation.get("toIndex")
+        target_name: str = correlation.to_index
 
         to_data = [
             {"ds": data.get("date"), "y": get(data, target_name)}
-            for data in request.get(correlation["toData"])["data"]
+            for data in request.documents.get(correlation.to_data)["data"]
         ]
 
         targets = pd.DataFrame(to_data)
-        targets = targets.groupby("ds").sum().reset_index()
+        targets = targets.groupby("ds").agg({"y": correlation.aggregate}).reset_index()
         targets["ds"] = pd.to_datetime(targets["ds"])
 
         targets = targets.merge(covariate_predictions, how="left", on="ds")
@@ -152,7 +183,7 @@ async def analyze_datasets(request: AnalysisRequest):
 
         target_forecast = target_model.predict(future)
 
-        output["correlations"][correlation.get("id")] = {
+        output["correlations"][correlation.id] = {
             "type": "prophet",
             "regressor_coefficients": regressor_coefficients(target_model).to_dict(
                 orient="records"
