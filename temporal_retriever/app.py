@@ -1,17 +1,13 @@
-from darts.metrics import mape
-from darts import TimeSeries
-from darts.models import Prophet
-
-
-import pandas as pd
 import numpy as np
-from fastapi import FastAPI, status
-
-from temporal_retriever.requests import AnalysisRequest
-
+import pandas as pd
+from darts import TimeSeries
+from darts.metrics import mape
+from darts.models import Prophet
 from darts.utils.statistics import granger_causality_tests, remove_trend
+from fastapi import FastAPI, status
 from icecream import ic
 
+from temporal_retriever.requests import AnalysisRequest
 
 app: FastAPI = FastAPI()
 
@@ -72,53 +68,96 @@ def correlate(from_series: TimeSeries, to_series: TimeSeries, max_lag: int = 14)
 
 @app.post("/analyze")
 async def analyze_datasets(request: AnalysisRequest):
+    prediction_horizon = 14
+    quantiles: list[tuple] = (0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)
     correlations = request.get("analyticsOptions").get("correlations")
 
-    output = {}
+    output = {"correlations": {}}
+
+    explanations = {
+        "ds": "The datestamp or the date for which the prediction is made.",
+        "trend": "The overall trend component of the time series at the specified date, capturing the long-term growth or decline.",
+        "yhat_lower": "The lower bound of the prediction interval for the specified date.",
+        "yhat_upper": "The upper bound of the prediction interval for the specified date.",
+        "trend_lower": "The lower bound of the trend component.",
+        "trend_upper": "The upper bound of the trend component.",
+        "additive_terms": "The sum of all the additive components (such as seasonality and holidays) for the specified date.",
+        "additive_terms_lower": "The lower bound of the additive terms.",
+        "additive_terms_upper": "The upper bound of the additive terms.",
+        "multiplicative_terms": "The multiplicative components (if any) of the model.",
+        "multiplicative_terms_lower": "The lower bound of the multiplicative terms.",
+        "multiplicative_terms_upper": "The upper bound of the multiplicative terms.",
+        "yhat": "The final predicted value for the specified date, which is the sum of the trend, additive terms, and any extra regressors.",
+        "extra_regressors_additive": "The sum of the contributions from all the extra regressors (if any) to the prediction.",
+        "extra_regressors_additive_lower": "The lower bound of the extra regressors' additive contribution.",
+        "extra_regressors_additive_upper": "The upper bound of the extra regressors' additive contribution.",
+        "weekly": "The contribution of the weekly seasonality component to the prediction.",
+        "weekly_lower": "The lower bound of the weekly seasonality component.",
+        "weekly_upper": "The upper bound of the weekly seasonality component.",
+    }
 
     for correlation in correlations:
         covariate_name: str = correlation.get("fromIndex")
+
+        from_data = [
+            {"ds": data.get("date"), "y": get(data, covariate_name)}
+            for data in request.get(correlation["fromData"])["data"]
+        ]
+
+        covariates = pd.DataFrame(from_data)
+        covariates["ds"] = pd.to_datetime(covariates["ds"])
+        covariates = covariates.groupby("ds").sum().reset_index()
+
+        covariate_model = Prophet()
+        covariate_model.fit(covariates)
+        covariate_future = covariate_model.make_future_dataframe(
+            periods=prediction_horizon
+        )
+
+        covariate_predictions = covariate_model.predict(covariate_future)[
+            ["ds", "yhat"]
+        ]
+
+        covariate_predictions = covariate_predictions.merge(
+            covariates, how="left", on="ds"
+        )
+        covariate_predictions[covariate_name] = covariate_predictions[
+            "y"
+        ].combine_first(covariate_predictions["yhat"])
+
+        covariate_predictions = covariate_predictions[["ds", covariate_name]]
+
+        # predict(covariates, prediction_horizon=14, num_samples=1)
+
         target_name: str = correlation.get("toIndex")
 
-        covariates = pd.DataFrame(request.get(correlation["fromData"])["data"])[
-            ["date", covariate_name]
+        to_data = [
+            {"ds": data.get("date"), "y": get(data, target_name)}
+            for data in request.get(correlation["toData"])["data"]
         ]
-        covariates["date"] = pd.to_datetime(covariates["date"])
 
-        targets = pd.DataFrame(request.get(correlation["toData"], {}).get("data", {}))[
-            ["date", target_name]
-        ]
-        targets["date"] = pd.to_datetime(targets["date"])
+        targets = pd.DataFrame(to_data)
+        targets = targets.groupby("ds").sum().reset_index()
+        targets["ds"] = pd.to_datetime(targets["ds"])
 
-        covariates: TimeSeries = TimeSeries.from_dataframe(
-            covariates,
-            time_col="date",
-            value_cols=covariate_name,
-            fill_missing_dates=True,
-        )
-        targets: TimeSeries = TimeSeries.from_dataframe(
-            targets, time_col="date", value_cols=target_name, fill_missing_dates=True
-        )
+        targets = targets.merge(covariate_predictions, how="left", on="ds")
 
-        output[correlation.get("id")] = {
-            "correlations": {
-                "granger_causality": {
-                    "description": "Statistical hypothesis test to determine if one time series causes X has a predictive relationship in the future to time series Y.",
-                    "values": correlate(covariates, targets, max_lag=2),
-                }
-            },
-            "predictions": {
-                "from": {
-                    "fromData": correlation.get("fromData"),
-                    "fromIndex": correlation.get("fromIndex"),
-                    "values": predict(covariates, prediction_horizon=1),
-                },
-                "to": {
-                    "toData": correlation.get("toData"),
-                    "toIndex": correlation.get("toIndex"),
-                    "values": predict(targets, prediction_horizon=1),
-                },
-            },
+        target_model = Prophet()
+        target_model.add_regressor(covariate_name)
+        target_model.fit(targets)
+
+        future = target_model.make_future_dataframe(periods=prediction_horizon).merge(
+            covariate_predictions, on="ds"
+        )  # .tail(prediction_horizon)
+
+        target_forecast = target_model.predict(future)
+
+        output["correlations"][correlation.get("id")] = {
+            "type": "prophet",
+            "regressor_coefficients": regressor_coefficients(target_model).to_dict(
+                orient="records"
+            ),
+            "predictions": target_forecast.to_dict(orient="records"),
         }
 
     return output
