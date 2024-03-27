@@ -121,9 +121,4 @@ async def analyze_datasets(request: AnalysisRequest):
             },
         }
 
-        # forecast = forecast.rename(columns=cols)[list(cols.values())]
-        # print(dir(model))
-        # print(model.seasonalities)
-        # print(model.changepoints)
-
     return output
