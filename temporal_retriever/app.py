@@ -76,16 +76,26 @@ class Correlation(BaseModel):
     from_index: str = Field(..., alias="fromIndex")
     to_data: str = Field(..., alias="toData")
     to_index: str = Field(..., alias="toIndex")
-    frequency: Literal["D", "W", "H", "m"] = Field(
+    grain: Literal["D", "W", "H", "m"] = Field(
         "D",
         description="granularity of the dataset, will be used for forecasting and aggregating raw data so that there are no overlaps in the time index",
+        alias="dataSetGranularity",
     )
-    aggregate: Literal["sum", "min", "max", "mean", "meadian"] = Field(
+    aggregation: Literal["sum", "min", "max", "mean", "meadian"] = Field(
         "sum",
         description="to avoid duplicates in the time index, will aggregate the values by the `freq` field using the supplied operation",
+        alias="dataAggregationType",
     )
-    prediction_horizon: conint(ge=1) = 7
-    quantiles: list[tuple] = (0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95)
+    prediction_horizon: conint(ge=1) = Field(
+        7,
+        description="How far into the future should we predict?",
+        alias="predictionHorizon",
+    )
+    quantiles: list[tuple] = Field(
+        (0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95),
+        description="The quantiles to use for interval predictions",
+        alias="predictionQuantiles",
+    )
 
 
 class AnalyticsOptions(BaseModel):
@@ -98,6 +108,7 @@ class AnalyticsRequest(BaseModel):
 
 
 def reset_time_index(
+    *,
     series: pd.Series,
     format: Literal["ISO8601", "mixed"] = "ISO8601",
     grain: str | None = None,
@@ -105,7 +116,7 @@ def reset_time_index(
     if not grain:
         return pd.to_datetime(series, format=format, utc=True)
 
-    if grain == "daily":
+    if grain == "D":
         return pd.to_datetime(series, format=format, utc=True).dt.date
 
 
@@ -118,11 +129,13 @@ def prepare_dataset(
 ):
     dataframe = pd.DataFrame(dataset)
     try:
-        dataframe[time_column] = reset_time_index(dataframe[time_column], grain=grain)
+        dataframe[time_column] = reset_time_index(
+            series=dataframe[time_column], grain=grain
+        )
     except ValueError:
         logger.info("falling back to mixed date format")
         dataframe[time_column] = reset_time_index(
-            dataframe[time_column], format="mixed", grain=grain
+            series=dataframe[time_column], format="mixed", grain=grain
         )
     return dataframe.groupby(time_column).agg({"y": aggregation}).reset_index()
 
@@ -139,6 +152,9 @@ async def analyze_datasets(request: AnalyticsRequest):
         covariate_name: str = correlation.from_index
         target_name: str = correlation.to_index
 
+        grain = correlation.grain
+        aggregation = correlation.aggregation
+
         from_data = [
             {"ds": data.get("date"), "y": data.get("covariate_name")}
             for data in request.documents.get(correlation.from_data).get("data")
@@ -147,8 +163,8 @@ async def analyze_datasets(request: AnalyticsRequest):
         covariates = prepare_dataset(
             dataset=from_data,
             time_column="ds",
-            aggregation=correlation.aggregate,
-            grain="daily",
+            aggregation=aggregation,
+            grain=grain,
         )
 
         covariate_model = Prophet()
@@ -182,8 +198,8 @@ async def analyze_datasets(request: AnalyticsRequest):
         targets = prepare_dataset(
             dataset=to_data,
             time_column="ds",
-            aggregation=correlation.aggregate,
-            grain="daily",
+            aggregation=aggregation,
+            grain=grain,
         )
 
         targets["ds"] = pd.to_datetime(targets["ds"])
