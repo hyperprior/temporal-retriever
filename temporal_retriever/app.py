@@ -9,6 +9,8 @@ from prophet import Prophet
 from prophet.utilities import regressor_coefficients
 from pydantic import BaseModel, Field, conint
 
+from loguru import logger
+
 
 app: FastAPI = FastAPI()
 
@@ -95,48 +97,58 @@ class AnalyticsRequest(BaseModel):
     analytics_options: AnalyticsOptions = Field(..., alias="analyticsOptions")
 
 
+def reset_time_index(
+    series: pd.Series,
+    format: Literal["ISO8601", "mixed"] = "ISO8601",
+    grain: str | None = None,
+):
+    if not grain:
+        return pd.to_datetime(series, format=format, utc=True)
+
+    if grain == "daily":
+        return pd.to_datetime(series, format=format, utc=True).dt.date
+
+
+def prepare_dataset(
+    *,
+    dataset: list[dict],
+    time_column: str = "ds",
+    aggregation: str = "sum",
+    grain: str | None = None,
+):
+    dataframe = pd.DataFrame(dataset)
+    try:
+        dataframe[time_column] = reset_time_index(dataframe[time_column], grain=grain)
+    except ValueError:
+        logger.info("falling back to mixed date format")
+        dataframe[time_column] = reset_time_index(
+            dataframe[time_column], format="mixed", grain=grain
+        )
+    return dataframe.groupby(time_column).agg({"y": aggregation}).reset_index()
+
+
 @app.post("/analyze")
 async def analyze_datasets(request: AnalyticsRequest):
     correlations = request.analytics_options.correlations
 
     output = {"correlations": {}}
 
-    explanations = {
-        "ds": "The datestamp or the date for which the prediction is made.",
-        "trend": "The overall trend component of the time series at the specified date, capturing the long-term growth or decline.",
-        "yhat_lower": "The lower bound of the prediction interval for the specified date.",
-        "yhat_upper": "The upper bound of the prediction interval for the specified date.",
-        "trend_lower": "The lower bound of the trend component.",
-        "trend_upper": "The upper bound of the trend component.",
-        "additive_terms": "The sum of all the additive components (such as seasonality and holidays) for the specified date.",
-        "additive_terms_lower": "The lower bound of the additive terms.",
-        "additive_terms_upper": "The upper bound of the additive terms.",
-        "multiplicative_terms": "The multiplicative components (if any) of the model.",
-        "multiplicative_terms_lower": "The lower bound of the multiplicative terms.",
-        "multiplicative_terms_upper": "The upper bound of the multiplicative terms.",
-        "yhat": "The final predicted value for the specified date, which is the sum of the trend, additive terms, and any extra regressors.",
-        "extra_regressors_additive": "The sum of the contributions from all the extra regressors (if any) to the prediction.",
-        "extra_regressors_additive_lower": "The lower bound of the extra regressors' additive contribution.",
-        "extra_regressors_additive_upper": "The upper bound of the extra regressors' additive contribution.",
-        "weekly": "The contribution of the weekly seasonality component to the prediction.",
-        "weekly_lower": "The lower bound of the weekly seasonality component.",
-        "weekly_upper": "The upper bound of the weekly seasonality component.",
-    }
-
     for correlation in correlations:
         quantiles = correlation.quantiles
         prediction_horizon = correlation.prediction_horizon
         covariate_name: str = correlation.from_index
+        target_name: str = correlation.to_index
 
         from_data = [
-            {"ds": data.get("date"), "y": get(data, covariate_name)}
+            {"ds": data.get("date"), "y": data.get("covariate_name")}
             for data in request.documents.get(correlation.from_data).get("data")
         ]
 
-        covariates = pd.DataFrame(from_data)
-        covariates["ds"] = pd.to_datetime(covariates["ds"])
-        covariates = (
-            covariates.groupby("ds").agg({"y": correlation.aggregate}).reset_index()
+        covariates = prepare_dataset(
+            dataset=from_data,
+            time_column="ds",
+            aggregation=correlation.aggregate,
+            grain="daily",
         )
 
         covariate_model = Prophet()
@@ -149,6 +161,10 @@ async def analyze_datasets(request: AnalyticsRequest):
             ["ds", "yhat"]
         ]
 
+        covariate_predictions["ds"] = pd.to_datetime(covariate_predictions["ds"])
+
+        covariates["ds"] = pd.to_datetime(covariates["ds"])
+
         covariate_predictions = covariate_predictions.merge(
             covariates, how="left", on="ds"
         )
@@ -158,17 +174,18 @@ async def analyze_datasets(request: AnalyticsRequest):
 
         covariate_predictions = covariate_predictions[["ds", covariate_name]]
 
-        # predict(covariates, prediction_horizon=14, num_samples=1)
-
-        target_name: str = correlation.to_index
-
         to_data = [
             {"ds": data.get("date"), "y": get(data, target_name)}
             for data in request.documents.get(correlation.to_data)["data"]
         ]
 
-        targets = pd.DataFrame(to_data)
-        targets = targets.groupby("ds").agg({"y": correlation.aggregate}).reset_index()
+        targets = prepare_dataset(
+            dataset=to_data,
+            time_column="ds",
+            aggregation=correlation.aggregate,
+            grain="daily",
+        )
+
         targets["ds"] = pd.to_datetime(targets["ds"])
 
         targets = targets.merge(covariate_predictions, how="left", on="ds")
@@ -177,7 +194,11 @@ async def analyze_datasets(request: AnalyticsRequest):
         target_model.add_regressor(covariate_name)
         target_model.fit(targets)
 
-        future = target_model.make_future_dataframe(periods=prediction_horizon).merge(
+        future = target_model.make_future_dataframe(periods=prediction_horizon)
+
+        future["ds"] = pd.to_datetime(future["ds"])
+
+        future = future.merge(
             covariate_predictions, on="ds"
         )  # .tail(prediction_horizon)
 
@@ -191,4 +212,4 @@ async def analyze_datasets(request: AnalyticsRequest):
             "predictions": target_forecast.to_dict(orient="records"),
         }
 
-    return output
+        return output

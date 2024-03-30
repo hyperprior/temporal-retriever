@@ -1,0 +1,2092 @@
+{
+  "analyticsOptions": {
+    "correlations": [
+      {
+        "id": "correlation-0",
+        "type": "prophet",
+        "fromData": "purchasing_order",
+        "fromIndex": "data.summary.totalWithTax",
+        "toData": "sales_order",
+        "toIndex": "data.summary.totalWithTax",
+        "dataSetGranularity": "D",
+        "dataAggregationType": "sum"
+      },
+      {
+        "id": "correlation-1",
+        "type": "prophet",
+        "fromData": "purchasing_order",
+        "fromIndex": "data.summary.totalWithTax",
+        "toData": "sales_order",
+        "toIndex": "data.summary.totalWithTax",
+        "dataSetGranularity": "D",
+        "dataAggregationType": "sum"
+      },
+      {
+        "id": "correlation-2",
+        "type": "prophet",
+        "fromData": "sales_order",
+        "fromIndex": "data.summary.totalWithTax",
+        "toData": "purchasing_order",
+        "toIndex": "data.summary.totalWithTax",
+        "dataSetGranularity": "D",
+        "dataAggregationType": "sum"
+      },
+      {
+        "id": "correlation-3",
+        "type": "prophet",
+        "fromData": "purchasing_order",
+        "fromIndex": "data.summary.totalWithTax",
+        "toData": "sales_order",
+        "toIndex": "data.summary.totalWithTax",
+        "dataSetGranularity": "D",
+        "dataAggregationType": "sum"
+      }
+    ]
+  },
+  "documents": {
+    "sales_order": {
+      "collectionName": "sales",
+      "typeOfData": "order",
+      "description": "Ability to manage sales orders.",
+      "data": [
+        {
+          "date": "2024-03-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 5335.4261,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 8951.866,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 172.58,
+              "shippingCost": 12
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 12532.4121,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 16481.0269,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 379.5974,
+              "shippingCost": 12
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1632.7221,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 2706.7825,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 4773.4591,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1318.0527,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 12446.63,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-06T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 26048.2976,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-06T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 361.1418,
+              "shippingCost": 12
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-05T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 586.9662,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-05T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 173.1188,
+              "shippingCost": 12
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-04T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 340.2311,
+              "shippingCost": 12
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-04T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 173.434,
+              "shippingCost": 12
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-03T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 663.724,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-03T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1746.4147,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-02T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 2974.9871,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-02T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 2948.2856,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-01T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1873.7178,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-01T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1962.0522,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-29T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1944.0963,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-29T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 634.3644,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-28T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 497.338,
+              "shippingCost": 12
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-28T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 613.674,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-27T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 11930.1899,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-27T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 2667.6648,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-26T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 31960.516,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-26T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1078.3698,
+              "shippingCost": 9
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-25T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 98706.5827,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-25T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 30624.8344,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-24T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 122338.8132,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-24T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 48515.4948,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-23T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 138103.2283,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-23T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 76050.7367,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-22T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 98975.6706,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-22T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 80907.4256,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-21T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 110126.4747,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-21T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 24187.7697,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-20T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 24874.3338,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-20T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 150956.3246,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-19T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 21908.1542,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-19T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 61886.0152,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-18T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 125379.9823,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-18T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 21311.0836,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-17T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 57824.1296,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-17T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 21335.3737,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-16T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 57708.4431,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-16T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 107367.3044,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-15T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 36196.3865,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-15T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 50403.3234,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-14T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 30916.2389,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-14T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 74065.6082,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-13T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 88998.0557,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-13T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 32164.302,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 107379.2587,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 39722.4467,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 47286.7101,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 38225.4611,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 53693.1393,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 47793.1092,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 110178.6254,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 63204.1008,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 74198.0465,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 45762.5921,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 89402.4306,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 30803.9167,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-06T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 85673.0736,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-06T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 52187.499,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-05T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 75965.6126,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-05T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 17845.5611,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-04T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 63913.712,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-04T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 94369.7444,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-03T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 91957.8936,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-03T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 30407.5676,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-02T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 70280.6596,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-02T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 43803.2651,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-01T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 98462.3598,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-01T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 30908.2844,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-31T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 44175.5544,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-31T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 94398.3268,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-30T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 73492.2973,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-30T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 57543.8345,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-29T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 42638.0957,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-29T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 47548.598,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-28T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 47101.9753,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-28T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 61993.229,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-27T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 43940.7859,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-27T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 74630.9924,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-26T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 66922.8525,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-26T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 50432.7601,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-25T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 53289.2604,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-25T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 88915.1697,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-24T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 83189.8436,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-24T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 11555.2113,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-23T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 117890.0605,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-23T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 75286.1088,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-22T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 83700.6755,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-22T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 5195.7873,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-21T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 95750.7138,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-21T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 34671.2084,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-20T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 19899.7924,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-20T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 48089.8924,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-19T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 43438.908,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-19T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 22018.7993,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-18T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 35718.1446,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-18T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 34994.9486,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-17T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 62445.3873,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-17T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 72617.695,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-16T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 26451.8856,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-16T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 25028.051,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-15T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 60217.3483,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-15T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 12639.0211,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-14T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 17627.4624,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-14T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 3955.4613,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-13T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 4762.4252,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-13T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 31140.5756,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 14258.1271,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 18842.1219,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 10785.1732,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 69455.2134,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 27593.1385,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 3895.5928,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 68844.2013,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 71618.2457,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 35052.9291,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 20014.7189,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 46658.0205,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 13150.9786,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        }
+      ]
+    },
+    "purchasing_order": {
+      "collectionName": "purchasing",
+      "typeOfData": "order",
+      "description": "Ability to manage purchase orders that mirror vendor sales documents.",
+      "data": [
+        {
+          "date": "2024-03-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1566.4,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1954.18,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 7729.31,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 405.16,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1281.32,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1910.13,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-06T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1963.04,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-05T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 17227.71,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-04T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 8890.45,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-03T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 871.83,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-02T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 3092.62,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-03-01T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1790.2,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-29T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1071.71,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-28T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 9.69,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-27T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 169.89,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-27T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 73.23,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-26T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 10900.15,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-25T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 8269.49,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-24T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 26.07,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-23T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 19.38,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-22T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 69.25,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-21T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 6394.19,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-20T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 431.91,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-19T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1208.11,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-18T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 346.67,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-18T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1269.54,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-17T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1146.43,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-16T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 228.07,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-15T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 239.59,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-14T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 4.95,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-13T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 25.19,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 85.17,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 49.04,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 172.14,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 106.56,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 381.37,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 233.48,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-07T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 1764.33,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-06T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 21089.09,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-05T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 23141.17,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-04T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 42173.37,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-03T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 17832,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-02T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 34586.24,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-02-01T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 32655.3,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-31T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 6987.52,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-30T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 17877.04,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-30T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 12967.11,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-29T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 22710.14,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-28T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 11032,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-27T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 38239.66,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-26T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 13981.38,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-25T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 29306.32,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-24T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 35664,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-23T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 31829.16,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-22T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 13997.36,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-21T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 692.83,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-21T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 3598.7,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-20T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 16115.2,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-19T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 56134.46,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-18T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 11748,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-17T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 79379.34,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-16T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 26748,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-15T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 54483.11,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-14T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 18129.6,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-13T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 61131.34,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 16096.8,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-12T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 49034.77,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-11T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 8615.2,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-10T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 11592.62,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-09T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 3021.6,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-08T23:59:59Z",
+          "data": {
+            "summary": {
+              "totalWithTax": 17153.7,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        },
+        {
+          "date": "2024-01-07",
+          "data": {
+            "summary": {
+              "totalWithTax": 3085.52,
+              "shippingCost": 0
+            },
+            "currency": "USD"
+          }
+        }
+      ]
+    }
+  }
+}
