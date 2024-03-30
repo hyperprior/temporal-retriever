@@ -61,12 +61,22 @@ run = """
 description = "unit tests"
 run = "poetry run pytest -vvv -m unit"
 
-[tasks."test:integration"]
-run = "docker-compose up --build"
-
 [tasks."synthesize"]
 run = "poetry run python -m synthesize_data"
 
 
 [tasks.notebook]
 run = "poetry run jupyter lab"
+
+[tasks."test:integration"]
+depends = ["docker:build"]
+run = """
+docker run -d -p 8000:8000 hyperprior/temporal-retriever:latest
+container_id=$(docker run -d -p 8080:8080 hyperprior/temporal-retriever:latest)
+
+exit_code=$?
+docker kill $container_id
+
+docker rm $container_id
+exit $exit_code
+"""
