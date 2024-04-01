@@ -7,6 +7,9 @@ services:
     ports: ['8000:8000']
     volumes: ['./api:/app']
     environment: [PYTHONUNBUFFERED=1]
+    deploy:
+      mode: replicated
+      replicas: 3
   tests:
     build:
       context: .
@@ -14,3 +17,17 @@ services:
     depends_on: [api]
     volumes: ['./tests:/tests']
     command: pytest -v
+  integration:
+      container_name: integration-test
+      build:
+        context: .
+        dockerfile: Dockerfile.integration-test
+      image: integration-test
+      command:
+        run Restful_Booker_Collection.json
+        -e environments/Restful_Booker_Environment.json
+        -r html,cli
+        --reporter-html-export reports/Restful_Booker_Test_Run.html
+        --reporter-html-template reports/templates/customTemplate.hbs
+      volumes:
+        - ./src:/etc/newman

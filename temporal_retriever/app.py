@@ -76,7 +76,7 @@ class Correlation(BaseModel):
     from_index: str = Field(..., alias="fromIndex")
     to_data: str = Field(..., alias="toData")
     to_index: str = Field(..., alias="toIndex")
-    grain: Literal["D", "W", "H", "m"] = Field(
+    grain: Literal["D", "W", "M", "H", "m"] = Field(
         "D",
         description="granularity of the dataset, will be used for forecasting and aggregating raw data so that there are no overlaps in the time index",
         alias="dataSetGranularity",
@@ -111,13 +111,32 @@ def reset_time_index(
     *,
     series: pd.Series,
     format: Literal["ISO8601", "mixed"] = "ISO8601",
-    grain: str | None = None,
+    grain: Literal["D", "W", "M", "H", "m"] | None = None,
 ):
     if not grain:
         return pd.to_datetime(series, format=format, utc=True)
 
-    if grain == "D":
-        return pd.to_datetime(series, format=format, utc=True).dt.date
+    match grain:
+        case "D":
+            return pd.to_datetime(series, format=format, utc=True).dt.date
+        case "W":
+            return (
+                pd.to_datetime(series, format=format, utc=utce)
+                .dt.to_period("W")
+                .dt.start_time
+            )
+        case "M":
+            return (
+                pd.to_datetime(series, format=format, utc=True)
+                .dt.to_period("M")
+                .dt.start_time
+            )
+        case "H":
+            return pd.to_datetime(series, format=format, utc=True).dt.floor("H")
+        case "m":
+            return pd.to_datetime(series, format=format, utc=True).dt.floor("T")
+        case _:
+            raise ValueError(f"Unsupported granularity: {grain}")
 
 
 def prepare_dataset(
@@ -125,7 +144,7 @@ def prepare_dataset(
     dataset: list[dict],
     time_column: str = "ds",
     aggregation: str = "sum",
-    grain: str | None = None,
+    grain: ["D", "W", "M", "H", "m"] | None = None,
 ):
     dataframe = pd.DataFrame(dataset)
     try:

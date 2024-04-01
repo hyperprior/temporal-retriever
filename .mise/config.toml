@@ -59,7 +59,7 @@ run = """
 
 [tasks."test:unit"]
 description = "unit tests"
-run = "poetry run pytest -vvv -m unit"
+run = "poetry run pytest -vvv"
 
 [tasks."synthesize"]
 run = "poetry run python -m synthesize_data"
@@ -74,8 +74,16 @@ run = """
 docker run -d -p 8000:8000 hyperprior/temporal-retriever:latest
 container_id=$(docker run -d -p 8080:8080 hyperprior/temporal-retriever:latest)
 
+echo "running tests in container=${container_id}"
+
+postman collection run \
+  $(skate get temporal-retriever-collection-id@postman) \
+  -e $(skate get temporal-retriever-collection-env@postman)
+
 exit_code=$?
+
 docker kill $container_id
+
 
 docker rm $container_id
 exit $exit_code
