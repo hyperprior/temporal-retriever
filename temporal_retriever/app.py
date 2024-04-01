@@ -1,17 +1,16 @@
-from typing import Literal
 from datetime import datetime
+from typing import Literal
+
 import numpy as np
 import pandas as pd
 from darts import TimeSeries
 from darts.utils.statistics import granger_causality_tests, remove_trend
 from fastapi import FastAPI, status
-from pydash import get
+from loguru import logger
 from prophet import Prophet
 from prophet.utilities import regressor_coefficients
-from pydantic import BaseModel, Field, conint, AliasChoices
-
-from loguru import logger
-
+from pydantic import AliasChoices, BaseModel, Field, conint
+from pydash import get
 
 app: FastAPI = FastAPI()
 
@@ -43,7 +42,8 @@ def predict(
 
     model.fit(series)
 
-    forecast = model.predict(n=prediction_horizon, num_samples=num_samples).all_values()
+    forecast = model.predict(n=prediction_horizon,
+                             num_samples=num_samples).all_values()
     predictions = pd.DataFrame(
         np.quantile(forecast, quantiles, axis=-1)
         .reshape(len(quantiles), prediction_horizon)
@@ -159,7 +159,8 @@ def prepare_dataset(
             series=dataframe[time_column], format="mixed", grain=grain
         )
 
-    dataframe = dataframe.groupby(time_column).agg({"y": aggregation}).reset_index()
+    dataframe = dataframe.groupby(time_column).agg(
+        {"y": aggregation}).reset_index()
 
     prediction_horizon = prediction_horizon or len(dataframe["ds"])
 
@@ -229,7 +230,8 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
             ["ds", "yhat"]
         ]
 
-        covariate_predictions["ds"] = pd.to_datetime(covariate_predictions["ds"])
+        covariate_predictions["ds"] = pd.to_datetime(
+            covariate_predictions["ds"])
 
         covariates["ds"] = pd.to_datetime(covariates["ds"])
 
@@ -318,4 +320,4 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
             ).to_dict(orient="records"),
         }
 
-        return output
+    return output
