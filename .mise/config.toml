@@ -1,5 +1,5 @@
 [tasks."deps:install"]
-run = "poetry install --no-root"
+run = "uv pip install -r requirements.txt --system --compile"
 
 [tasks."deps:add"]
 args = ["dependency"]
@@ -11,24 +11,28 @@ run = "poetry add --group=dev $dependency"
 
 
 [tasks."serve:dev"]
-run = "poetry run uvicorn temporal_retriever.app:app --host 0.0.0.0 --port 8000 --reload"
+run = """
+uv pip install -r requirements.txt --system
+uvicorn temporal_retriever.app:app --host 0.0.0.0 --port 8000 --reload
+"""
 
 [tasks."docker:build"]
 run = """
-  POETRY_VERSION=$(poetry version -s)
-  echo "Using $POETRY_VERSION"
+  VERSION=$(awk -F'"' '/^version/ {print $2}' pyproject.toml)
+  echo "Using version=$VERSION"
 
   DOCKER_IMAGE="hyperprior/temporal-retriever"
-  docker build -t "$DOCKER_IMAGE:$POETRY_VERSION" -t "$DOCKER_IMAGE:latest" .
+  docker build -t "$DOCKER_IMAGE:$VERSION" -t "$DOCKER_IMAGE:latest" .
 """
 
 [tasks."docker:push"]
 depends = ["docker:build"]
 run = """
-  POETRY_VERSION=$(poetry version -s)
+  VERSION=$(awk -F'"' '/^version/ {print $2}' pyproject.toml)
+
 
   DOCKER_IMAGE="hyperprior/temporal-retriever"
-  docker push "$DOCKER_IMAGE:$POETRY_VERSION"
+  docker push "$DOCKER_IMAGE:$VERSION"
   docker push "$DOCKER_IMAGE:latest"
 """
 
@@ -47,22 +51,6 @@ run = """
   git commit
   git push
 """
-
-[tasks."update:patch"]
-description = "push changes to github, tag current version to docker and push, patch update version"
-run = """
-  poetry version patch
-  poetry update
-"""
-
-[tasks."update:minor"]
-description = "push changes to github, tag current version to docker and push, minor update version"
-run = """
-  poetry version minor
-  poetry update
-"""
-
-
 
 [tasks."test:unit"]
 description = "unit tests"

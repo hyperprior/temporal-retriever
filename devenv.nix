@@ -14,6 +14,7 @@
     jq
     ruff
     jqp
+    uv
   ];
 
   languages.python.enable = true;
