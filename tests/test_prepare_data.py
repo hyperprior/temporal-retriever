@@ -1,9 +1,5 @@
 import pandas as pd
-import pytest
 from pandas.testing import assert_series_equal
-from typing import Literal
-
-from temporal_retriever.app import prepare_dataset
 
 
 def test_iso8601_format():

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Literal
 
 import pandas as pd
@@ -80,7 +79,7 @@ def prepare_dataset(
         )
     except ValueError:
         logger.info("falling back to mixed date format")
-        series = reset_time_index(
+        dataframe[time_column] = reset_time_index(
             series=dataframe[time_column], format="mixed", grain=grain
         )
 
@@ -102,7 +101,6 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
 
         grain = correlation.grain
         aggregation = correlation.aggregation
-        quantiles = correlation.quantiles
         covariate_name: str = correlation.from_index
         target_name: str = correlation.to_index
 
@@ -131,8 +129,6 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
         covariate_future = covariate_model.make_future_dataframe(
             periods=covariates_prediction_horizon, freq=grain
         )
-
-        covariate_future_dates = covariate_future["ds"].to_list()
 
         covariate_predictions = covariate_model.predict(covariate_future)[
             ["ds", "yhat"]
