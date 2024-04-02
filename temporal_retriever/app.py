@@ -12,6 +12,8 @@ from prophet.utilities import regressor_coefficients
 from pydantic import AliasChoices, BaseModel, Field, conint
 from pydash import get
 
+from temporal_retriever.core import autocorrelation, partial_autocorrelation
+
 app: FastAPI = FastAPI()
 
 
@@ -54,13 +56,6 @@ def predict(
 
     return predictions.to_dict(orient="records")
 
-    # backtests = model.historical_forecasts(
-    # series, start=0.5, forecast_horizon=prediction_horizon, overlap_end=True
-    # )
-    # backtest_mape = mape(backtests, series)
-    # if backtest_mape is np.nan:
-    # backtest_mape = None
-
 
 def correlate(from_series: TimeSeries, to_series: TimeSeries, max_lag: int = 14):
     if not (len(from_series) >= 14 and len(to_series) >= 14):
@@ -72,7 +67,7 @@ def correlate(from_series: TimeSeries, to_series: TimeSeries, max_lag: int = 14)
 
 class Correlation(BaseModel):
     id: str
-    type: Literal["prophet", "granger"] = "prophet"  # TODO make literals
+    type: Literal["prophet", "granger", "univariateStatistics"] = "prophet"
     from_data: str = Field(..., alias="fromData")
     from_index: str = Field(..., alias="fromIndex")
     to_data: str = Field(..., alias="toData")
@@ -198,6 +193,8 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
     output = {"correlations": {}}
 
     for correlation in correlations:
+        output["correlations"][correlation.id] = {"type": correlation.type}
+
         grain = correlation.grain
         aggregation = correlation.aggregation
         quantiles = correlation.quantiles
@@ -205,7 +202,7 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
         target_name: str = correlation.to_index
 
         from_data = [
-            {"ds": data.get("date"), "y": data.get("covariate_name")}
+            {"ds": data.get("date"), "y": get(data, covariate_name)}
             for data in request.documents.get(correlation.from_data).get("data")
         ]
 
@@ -297,32 +294,43 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
             target_forecast["date"].isin(future_forecast_dates)
         ]
 
-        # .to_dict(orient="records"),
+        output["correlations"][correlation.id]["diagnostics"] = {
+            "units": grain,
+            "from": {
+                "data": correlation.from_data,
+                "index": correlation.from_index,
+                "minDate": covariate_date_bounds[0],
+                "maxDate": covariate_date_bounds[1],
+                "unitsForecasted": covariates_prediction_horizon,
+            },
+            "to": {
+                "data": correlation.to_data,
+                "index": correlation.to_index,
+                "minDate": target_date_bounds[0],
+                "maxDate": target_date_bounds[1],
+                "unitsForecasted": targets_prediction_horizon,
+            },
+        }
 
-        output["correlations"][correlation.id] = {
-            "type": "prophet",
-            "diagnostics": {
-                "units": grain,
-                "from": {
-                    "index": correlation.from_index,
-                    "minDate": covariate_date_bounds[0],
-                    "maxDate": covariate_date_bounds[1],
-                    "unitsForecasted": covariates_prediction_horizon,
-                },
-                "to": {
-                    "index": correlation.to_index,
-                    "minDate": target_date_bounds[0],
-                    "maxDate": target_date_bounds[1],
-                    "unitsForecasted": targets_prediction_horizon,
-                },
-            },
-            "regressor_coefficients": regressor_coefficients(target_model).to_dict(
-                orient="records"
-            ),
-            "predictions": {
-                "historicalForecasts": historical_forecast.to_dict(orient="records"),
-                "futureForecasts": future_forecast.to_dict(orient="records"),
-            },
+        output["correlations"][correlation.id]["autocorrelations"] = {
+            "description": "Autocorrelation measures the correlation between a time series and its lagged values. It shows the degree of similarity between a time series and a lagged version of itself over successive time intervals. The autocorrelation coefficient ranges from -1 to +1, with values close to +1 indicating a strong positive correlation and values close to -1 indicating a strong negative correlation. However, autocorrelation does not distinguish between direct and indirect dependencies. It can be influenced by intermediate lags.",
+            "from": autocorrelation(covariates["y"]),
+            "to": autocorrelation(targets["y"]),
+        }
+
+        output["correlations"][correlation.id]["partialAutocorrelations"] = {
+            "description": "Partial autocorrelation measures the correlation between a time series and its lagged values, while removing the effect of the intermediate lags. It shows the direct relationship between a time series and a specific lagged value, excluding the influence of other lags in between. Partial autocorrelation helps identify the direct influence of a lagged value on the current value of the series.",
+            "from": partial_autocorrelation(covariates["y"]),
+            "to": partial_autocorrelation(targets["y"]),
+        }
+
+        output["correlations"][correlation.id]["regressor_coefficients"] = (
+            regressor_coefficients(target_model).to_dict(orient="records")
+        )
+
+        output["correlations"][correlation.id]["predictions"] = {
+            "historicalForecasts": historical_forecast.to_dict(orient="records"),
+            "futureForecasts": future_forecast.to_dict(orient="records"),
         }
 
     return output
