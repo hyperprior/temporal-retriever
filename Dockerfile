@@ -4,10 +4,14 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN apt-get -y update && apt-get -y install curl && \
+RUN apt-get -y update && \
+    apt-get -y install --no-install-recommends curl && \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     . $HOME/.cargo/env && \
-    uv pip install -r requirements.txt --system --compile
+    uv pip install -r requirements.txt --system --compile && \
+    apt-get remove -y curl gcc && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY temporal_retriever temporal_retriever
 
