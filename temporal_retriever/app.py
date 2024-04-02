@@ -1,10 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-import numpy as np
 import pandas as pd
-from darts import TimeSeries
-from darts.utils.statistics import granger_causality_tests, remove_trend
 from fastapi import FastAPI, status
 from loguru import logger
 from prophet import Prophet
@@ -21,48 +18,6 @@ app: FastAPI = FastAPI()
 async def health_check():
     """Health check endpoint."""
     return
-
-
-def predict(
-    series: TimeSeries,
-    quantiles: list[tuple] = (0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95),
-    prediction_horizon: int = 14,
-    num_samples: int = 1000,
-) -> dict:
-    model = Prophet(
-        add_seasonalities={
-            "name": "quarterly_seasonality",
-            "seasonal_periods": 4,
-            "fourier_order": 5,
-        },
-        add_encoders={
-            "cyclic": {"future": ["month", "week"]},
-            "datetime_attribute": {"future": ["dayofweek"]},
-            "position": {"future": ["relative"]},
-        },
-    )
-
-    model.fit(series)
-
-    forecast = model.predict(n=prediction_horizon,
-                             num_samples=num_samples).all_values()
-    predictions = pd.DataFrame(
-        np.quantile(forecast, quantiles, axis=-1)
-        .reshape(len(quantiles), prediction_horizon)
-        .T
-    )
-
-    predictions.columns = [f"q{quant}" for quant in quantiles]
-
-    return predictions.to_dict(orient="records")
-
-
-def correlate(from_series: TimeSeries, to_series: TimeSeries, max_lag: int = 14):
-    if not (len(from_series) >= 14 and len(to_series) >= 14):
-        return None
-    return granger_causality_tests(
-        remove_trend(from_series), remove_trend(to_series), maxlag=max_lag
-    )
 
 
 class Correlation(BaseModel):
