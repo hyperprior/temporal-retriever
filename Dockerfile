@@ -9,6 +9,9 @@ RUN pip install --no-cache-dir poetry && \
 
 COPY temporal_retriever /temporal_retriever
 
+RUN useradd -m appuser
+USER appuser
+
 EXPOSE 8000
 
 ENTRYPOINT ["uvicorn", "temporal_retriever.app:app", "--host", "0.0.0.0", "--port", "8000"]
