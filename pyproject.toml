@@ -1,6 +1,6 @@
 [project]
 name = "temporal-retriever"
-version = "0.4.6"
+version = "0.4.7"
 description = "Rapid Time Series, LLM Aware"
 authors = [{name = "chrisaddy", email = "chris.william.addy@gmail.com"}]
 license = "MIT"
