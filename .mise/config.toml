@@ -50,11 +50,19 @@ run = """
 
 [tasks."update:patch"]
 description = "push changes to github, tag current version to docker and push, patch update version"
-depends = ["docker:push"]
 run = """
   poetry version patch
   poetry update
 """
+
+[tasks."update:minor"]
+description = "push changes to github, tag current version to docker and push, minor update version"
+run = """
+  poetry version minor
+  poetry update
+"""
+
+
 
 [tasks."test:unit"]
 description = "unit tests"
