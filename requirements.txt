@@ -12,8 +12,6 @@ contourpy==1.2.0
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-exceptiongroup==1.2.0
-    # via anyio
 fastapi==0.110.1
 fonttools==4.50.0
     # via matplotlib
@@ -36,6 +34,7 @@ numpy==1.26.4
     #   contourpy
     #   matplotlib
     #   pandas
+    #   pandas-stubs
     #   patsy
     #   prophet
     #   scipy
@@ -50,6 +49,7 @@ pandas==2.2.1
     #   cmdstanpy
     #   prophet
     #   statsmodels
+pandas-stubs==2.2.1.240316
 patsy==0.5.6
     # via statsmodels
 pillow==10.3.0
@@ -86,14 +86,14 @@ tqdm==4.66.2
     # via
     #   cmdstanpy
     #   prophet
+types-pytz==2024.1.0.20240203
+    # via pandas-stubs
 typing-extensions==4.10.0
     # via
-    #   anyio
     #   fastapi
     #   pydantic
     #   pydantic-core
     #   pydash
-    #   uvicorn
 tzdata==2024.1
     # via pandas
 uvicorn==0.29.0

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Literal
 
 import pandas as pd
@@ -6,10 +5,16 @@ from fastapi import FastAPI, status
 from loguru import logger
 from prophet import Prophet
 from prophet.utilities import regressor_coefficients
-from pydantic import AliasChoices, BaseModel, Field, conint
+from pydantic import BaseModel, Field, conint
 from pydash import get
 
-from temporal_retriever.core import autocorrelation, partial_autocorrelation
+from temporal_retriever.core import (
+    autocorrelation,
+    partial_autocorrelation,
+    reset_time_index,
+)
+
+from temporal_retriever.responses import AnalyticsResponse
 
 app: FastAPI = FastAPI()
 
@@ -27,6 +32,7 @@ class Correlation(BaseModel):
     from_index: str = Field(..., alias="fromIndex")
     to_data: str = Field(..., alias="toData")
     to_index: str = Field(..., alias="toIndex")
+    changepoint_prior_scale: float = Field(0.8, alias="ChangePointPriorScale")
     grain: Literal["D", "W", "M", "H", "min"] = Field(
         "D",
         description="granularity of the dataset, will be used for forecasting and aggregating raw data so that there are no overlaps in the time index",
@@ -40,7 +46,7 @@ class Correlation(BaseModel):
     prediction_horizon: conint(ge=1) | None = Field(
         None,
         description="How far into the future should we predict?",
-        validation_alias=AliasChoices("predictionHorizon", "unitsToForecast"),
+        alias="unitsToForecast",
     )
     quantiles: list[tuple] = Field(
         (0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95),
@@ -58,38 +64,6 @@ class AnalyticsRequest(BaseModel):
     analytics_options: AnalyticsOptions = Field(..., alias="analyticsOptions")
 
 
-def reset_time_index(
-    *,
-    series: pd.Series,
-    format: Literal["ISO8601", "mixed"] = "ISO8601",
-    grain: Literal["D", "W", "M", "H", "m"] | None = None,
-):
-    if not grain:
-        return pd.to_datetime(series, format=format, utc=True)
-
-    match grain:
-        case "D":
-            return pd.to_datetime(series, format=format, utc=True).dt.date
-        case "W":
-            return (
-                pd.to_datetime(series, format=format, utc=True)
-                .dt.to_period("W")
-                .dt.end_time
-            )
-        case "M":
-            return (
-                pd.to_datetime(series, format=format, utc=True)
-                .dt.to_period("M")
-                .dt.end_time
-            )
-        case "H":
-            return pd.to_datetime(series, format=format, utc=True).dt.floor("H")
-        case "m":
-            return pd.to_datetime(series, format=format, utc=True).dt.floor("T")
-        case _:
-            raise ValueError(f"Unsupported granularity: {grain}")
-
-
 def prepare_dataset(
     *,
     dataset: list[dict],
@@ -105,40 +79,15 @@ def prepare_dataset(
         )
     except ValueError:
         logger.info("falling back to mixed date format")
-        series = reset_time_index(
+        dataframe[time_column] = reset_time_index(
             series=dataframe[time_column], format="mixed", grain=grain
         )
 
-    dataframe = dataframe.groupby(time_column).agg(
-        {"y": aggregation}).reset_index()
+    dataframe = dataframe.groupby(time_column).agg({"y": aggregation}).reset_index()
 
     prediction_horizon = prediction_horizon or len(dataframe["ds"])
 
     return dataframe, prediction_horizon
-
-
-class IndexResponse(BaseModel):
-    index: str
-    minDate: datetime
-    maxDate: datetime
-    unitsForecasted: conint(ge=1)
-    historicalForecastDates: list[datetime]
-    futureForecastDates: list[datetime]
-
-
-class DiagnosticsResponse(BaseModel):
-    units: Literal["D", "W", "M", "H", "m"]
-    from_: IndexResponse = Field(..., alias="from")
-    to: IndexResponse
-
-
-class CorrelationResponse(BaseModel):
-    type: Literal["prophet", "granger", "autocorrelation"] = "prophet"
-    diagnostics: DiagnosticsResponse
-
-
-class AnalyticsResponse(BaseModel):
-    correlations: dict
 
 
 @app.post("/analyze")
@@ -152,7 +101,6 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
 
         grain = correlation.grain
         aggregation = correlation.aggregation
-        quantiles = correlation.quantiles
         covariate_name: str = correlation.from_index
         target_name: str = correlation.to_index
 
@@ -170,20 +118,23 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
 
         covariate_date_bounds = covariates["ds"].min(), covariates["ds"].max()
 
-        covariate_model = Prophet()
+        covariate_model = Prophet(
+            uncertainty_samples=1000,
+            changepoint_prior_scale=correlation.changepoint_prior_scale,
+            # seasonality_prior_scale=10.0,
+            # holidays_prior_scale=10.0,
+        )
+
         covariate_model.fit(covariates)
         covariate_future = covariate_model.make_future_dataframe(
             periods=covariates_prediction_horizon, freq=grain
         )
 
-        covariate_future_dates = covariate_future["ds"].to_list()
-
         covariate_predictions = covariate_model.predict(covariate_future)[
             ["ds", "yhat"]
         ]
 
-        covariate_predictions["ds"] = pd.to_datetime(
-            covariate_predictions["ds"])
+        covariate_predictions["ds"] = pd.to_datetime(covariate_predictions["ds"])
 
         covariates["ds"] = pd.to_datetime(covariates["ds"])
 
@@ -214,7 +165,12 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
 
         targets = targets.merge(covariate_predictions, how="left", on="ds")
 
-        target_model = Prophet()
+        target_model = Prophet(
+            uncertainty_samples=1000,
+            changepoint_prior_scale=correlation.changepoint_prior_scale,
+            # seasonality_prior_scale=10.0,
+            # holidays_prior_scale=10.0,
+        )
         target_model.add_regressor(covariate_name)
         target_model.fit(targets)
 
@@ -279,7 +235,7 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
             "to": partial_autocorrelation(targets["y"]),
         }
 
-        output["correlations"][correlation.id]["regressor_coefficients"] = (
+        output["correlations"][correlation.id]["regressorCoefficients"] = (
             regressor_coefficients(target_model).to_dict(orient="records")
         )
 
@@ -288,4 +244,4 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
             "futureForecasts": future_forecast.to_dict(orient="records"),
         }
 
-    return output
+        return output
