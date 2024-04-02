@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "temporal-retriever"
-version = "0.4.2"
+version = "0.4.3"
 description = ""
 authors = ["chrisaddy <chris.william.addy@gmail.com>"]
 license = "MIT"
