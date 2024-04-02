@@ -1,0 +1,10 @@
+Dockerfile*
+devenv*
+docker-compose.yaml
+LICENSE
+*.json
+synthesize_data.py
+temp/
+README.md
+*.iynb
+tests/
