@@ -276,7 +276,28 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
 
         future = future.merge(covariate_predictions, on="ds")
 
-        target_forecast = target_model.predict(future)
+        target_forecast = target_model.predict(future).rename(
+            columns={
+                "ds": "date",
+                "yhat": "prediction",
+                "yhat_lower": "prediction_lower_bound",
+                "yhat_upper": "prediction_upper_bound",
+                "trend_lower": "trend_lower_bound",
+                "trend_upper": "trend_upper_bound",
+            }
+        )
+
+        historical_forecast_dates = future_dates[:targets_prediction_horizon]
+        future_forecast_dates = future_dates[targets_prediction_horizon:]
+
+        historical_forecast = target_forecast[
+            target_forecast["date"].isin(historical_forecast_dates)
+        ]
+        future_forecast = target_forecast[
+            target_forecast["date"].isin(future_forecast_dates)
+        ]
+
+        # .to_dict(orient="records"),
 
         output["correlations"][correlation.id] = {
             "type": "prophet",
@@ -287,37 +308,21 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
                     "minDate": covariate_date_bounds[0],
                     "maxDate": covariate_date_bounds[1],
                     "unitsForecasted": covariates_prediction_horizon,
-                    "historicalForecastDates": covariate_future_dates[
-                        :covariates_prediction_horizon
-                    ],
-                    "futureForecastDates": covariate_future_dates[
-                        covariates_prediction_horizon:
-                    ],
                 },
                 "to": {
                     "index": correlation.to_index,
                     "minDate": target_date_bounds[0],
                     "maxDate": target_date_bounds[1],
                     "unitsForecasted": targets_prediction_horizon,
-                    "historicalForecastDates": future_dates[
-                        :targets_prediction_horizon
-                    ],
-                    "futureForecastDates": future_dates[targets_prediction_horizon:],
                 },
             },
             "regressor_coefficients": regressor_coefficients(target_model).to_dict(
                 orient="records"
             ),
-            "predictions": target_forecast.rename(
-                columns={
-                    "ds": "date",
-                    "yhat": "prediction",
-                    "yhat_lower": "prediction_lower_bound",
-                    "yhat_upper": "prediction_upper_bound",
-                    "trend_lower": "trend_lower_bound",
-                    "trend_upper": "trend_upper_bound",
-                }
-            ).to_dict(orient="records"),
+            "predictions": {
+                "historicalForecasts": historical_forecast.to_dict(orient="records"),
+                "futureForecasts": future_forecast.to_dict(orient="records"),
+            },
         }
 
     return output

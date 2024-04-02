@@ -70,19 +70,28 @@ run = "poetry run jupyter lab"
 [tasks."test:integration"]
 depends = ["docker:build"]
 run = """
-docker run -d -p 8000:8000 hyperprior/temporal-retriever:latest
 container_id=$(docker run -d -p 8080:8080 hyperprior/temporal-retriever:latest)
+
+# Wait for the container to start
+sleep 5
+
+until $(curl --output /dev/null --silent --head --fail http://localhost:8080/health); do
+    printf '.'
+    sleep 5
+done
 
 echo "running tests in container=${container_id}"
 
-postman collection run \
-  $(skate get temporal-retriever-collection-id@postman) \
-  -e $(skate get temporal-retriever-collection-env@postman)
+collection_id=$(skate get temporal-retriever-collection-id@postman)
+env_id=$(skate get temporal-retriever-collection-env@postman)
+echo "using collection ${collection_id}"
+echo "using collection env ${env_id}"
+
+postman collection run $collection_id -e $env_id
 
 exit_code=$?
 
 docker kill $container_id
-
 
 docker rm $container_id
 exit $exit_code
