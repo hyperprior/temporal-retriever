@@ -1,4 +1,7 @@
 from typing import Literal
+from types import SimpleNamespace
+
+from functools import cached_property
 
 import pandas as pd
 from fastapi import FastAPI, status
@@ -182,7 +185,7 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
 
         future_dates = future["ds"].to_list()
 
-        future = future.merge(covariate_predictions, on="ds")
+        future = future.merge(covariate_predictions, on="ds", how="left").dropna()
 
         target_forecast = target_model.predict(future).rename(
             columns={
@@ -245,3 +248,327 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
         }
 
         return output
+
+
+class Cap(BaseModel):
+    floor: float | None = 0
+    ceiling: float | None = None
+
+
+class Caps(BaseModel):
+    from_index: Cap = Field(Cap(), alias="fromIndex")
+    to_index: Cap = Field(Cap(), alias="toIndex")
+
+
+class ForecastingOption(BaseModel):
+    uncertainty_samples: conint(ge=1) = Field(1000, alias="uncertaintySamples")
+    changepoint_prior_scale: float = Field(0.5, alias="changepointPriorScale")
+    growth: Literal["linear", "logistic"] = "logistic"
+    caps: Caps = Caps()
+
+
+class ForecastingOptions(BaseModel):
+    from_index: ForecastingOption = Field(ForecastingOption(), alias="fromIndex")
+    to_index: ForecastingOption = Field(ForecastingOption(), alias="toIndex")
+
+
+class SaturatingGrowthCorrelation(BaseModel):
+    id: str
+    type: Literal["prophet"] = "prophet"
+    from_data: str = Field(..., alias="fromData")
+    from_index: str = Field(..., alias="fromIndex")
+    to_data: str = Field(..., alias="toData")
+    to_index: str = Field(..., alias="toIndex")
+    grain: Literal["D", "W", "M", "H", "min"] = Field(
+        "D",
+        description="granularity of the dataset, will be used for forecasting and aggregating raw data so that there are no overlaps in the time index",
+        alias="dataSetGranularity",
+    )
+    aggregation: Literal["sum", "min", "max", "mean", "meadian"] = Field(
+        "sum",
+        description="to avoid duplicates in the time index, will aggregate the values by the `freq` field using the supplied operation",
+        alias="dataAggregationType",
+    )
+    prediction_horizon: conint(ge=1) | None = Field(
+        None,
+        description="How far into the future should we predict?",
+        alias="unitsToForecast",
+    )
+    forecasting_options: ForecastingOptions = Field(
+        ForecastingOptions(), alias="ForecastingOptions"
+    )
+
+
+class SaturatingGrowthAnalyticsOptions(BaseModel):
+    correlations: list[SaturatingGrowthCorrelation]
+
+
+class SaturatingGrowthRequest(BaseModel):
+    analytics_options: SaturatingGrowthAnalyticsOptions = Field(
+        ..., alias="analyticsOptions"
+    )
+    documents: dict
+
+
+class SaturatingGrowthResponse(BaseModel):
+    pass
+
+
+class UnivariateTimeSeriesDataBundle:
+    def __init__(
+        self,
+        *,
+        dataset: list[dict[str, str | float]],
+        value_column: str,
+        time_column: str = "ds",
+        aggregation: str = "sum",
+        grain: str | None = None,
+        prediction_horizon: int | None = None,
+    ):
+        self.dataset = dataset
+        self.time_column = time_column
+        self.value_column = value_column
+        self.aggregation = aggregation
+        self.grain = grain
+        self.prediction_horizon = prediction_horizon or len(dataset)
+        self.value_column = value_column
+
+    @property
+    def output_columns(self):
+        return {
+            "ds": "date",
+            "yhat_lower": "prediction_lower_bound",
+            "yhat": "prediction",
+            "yhat_upper": "prediction_upper_bound",
+            "trend_lower": "trend_lower_bound",
+            "trend": "trend",
+            "trend_upper": "trend_upper_bound",
+            "additive_terms_lower": "additive_terms_lower",
+            "additive_terms": "additive_terms",
+            "additive_terms_upper": "additive_terms_upper",
+            "multiplicative_terms_lower": "multiplicative_terms_lower",
+            "multiplicative_terms": "multiplicative_terms",
+            "multiplicative_terms_upper": "multiplicative_terms_upper",
+        }
+
+    @cached_property
+    def floor(self):
+        return min(self.value_column.floor, self.dataframe["y"].min())
+
+    @cached_property
+    def ceiling(self):
+        return max(
+            self.value_column.ceiling
+            or (self.dataframe["y"].max() + self.dataframe["y"].std() * 3),
+            self.dataframe["y"].max(),
+        )
+
+    @cached_property
+    def date_bounds(self):
+        return SimpleNamespace(
+            min=self.dataframe["ds"].min(), max=self.dataframe["ds"].max()
+        )
+
+    @cached_property
+    def raw_dataframe(self):
+        dataframe = pd.DataFrame(self.dataset)
+        dataframe["y"] = dataframe[self.value_column.name]
+        try:
+            dataframe[self.time_column] = self._reset_time_index(
+                series=dataframe[self.time_column], grain=self.grain
+            )
+        except ValueError:
+            logger.info("falling back to mixed date format")
+
+            dataframe[self.time_column] = self._reset_time_index(
+                series=dataframe[self.time_column], grain=self.grain, format="mixed"
+            )
+
+        return dataframe
+
+    @cached_property
+    def dataframe(self):
+        return (
+            self.raw_dataframe.groupby(self.time_column)
+            .agg({"y": self.aggregation, self.value_column.name: self.aggregation})
+            .reset_index()
+        )
+
+    @property
+    def historical_forecasts(self):
+        return (
+            self.predictions[self.predictions["ds"] <= self.date_bounds.max][
+                list(self.output_columns.keys())
+            ]
+            .rename(columns=self.output_columns)
+            .to_dict(orient="records")
+        )
+
+    @property
+    def future_forecasts(self):
+        return (
+            self.predictions[self.predictions["ds"] > self.date_bounds.max][
+                list(self.output_columns.keys())
+            ]
+            .rename(columns=self.output_columns)
+            .to_dict(orient="records")
+        )
+
+    def _reset_time_index(
+        self,
+        *,
+        series: pd.Series,
+        format: Literal["ISO8601", "mixed"] = "ISO8601",
+        grain: Literal["D", "W", "M", "H", "m"] | None = None,
+    ):
+        series = pd.to_datetime(series, format=format, utc=True)
+
+        match grain:
+            case None:
+                return series.dt.tz_localize(None)
+            case "D":
+                return series.dt.date.dt.tz_localize(None)
+            case "W":
+                return series.dt.to_period("W").dt.end_time
+            case "M":
+                return series.dt.to_period("M").dt.end_time
+            case "H":
+                return series.dt.floor("H")
+            case "m":
+                return series.dt.floor("T")
+            case _:
+                raise ValueError(f"Unsupported granularity: {grain}")
+
+    def predict_prophet(self, options, covariates=None):
+        data = self.dataframe
+
+        if options.growth == "logistic":
+            data["floor"] = self.floor
+            data["cap"] = self.ceiling
+
+        model = Prophet(
+            uncertainty_samples=options.uncertainty_samples,
+            changepoint_prior_scale=options.changepoint_prior_scale,
+            growth=options.growth,
+        )
+
+        if covariates:
+            data = data[["ds", "y", "floor", "cap"]].merge(
+                covariates.predictions, how="left", on="ds"
+            )
+            model.add_regressor(covariates.value_column.name)
+
+        model.fit(data)
+
+        future = model.make_future_dataframe(
+            periods=self.prediction_horizon, freq=self.grain
+        )
+
+        if covariates:
+            future = future.merge(covariates.predictions, on="ds")
+
+        if options.growth == "logistic":
+            future["floor"] = self.floor
+            future["cap"] = self.ceiling
+
+        predictions = model.predict(future)  # [["ds", "yhat"]]
+
+        predictions["ds"] = pd.to_datetime(predictions["ds"])
+
+        if not covariates:
+            predictions = predictions.merge(self.dataframe, how="left", on="ds")
+            predictions[self.value_column.name] = predictions["y"].combine_first(
+                predictions["yhat"]
+            )
+            predictions = predictions[["ds", self.value_column.name]]
+
+        self.model = model
+        self.future = future
+        self.predictions = predictions
+
+
+@app.post("/saturating-growth")
+async def saturating_growth(request: SaturatingGrowthRequest):
+    correlations = request.analytics_options.correlations
+
+    output = {"correlations": {}}
+
+    for correlation in correlations:
+
+        grain = correlation.grain
+        aggregation = correlation.aggregation
+        covariate_name: str = correlation.from_index
+        target_name: str = correlation.to_index
+
+        covariate_forecasting_options = correlation.forecasting_options.from_index
+        target_forecasting_options = correlation.forecasting_options.to_index
+
+        from_data = [
+            {"ds": data.get("date"), covariate_name: get(data, covariate_name)}
+            for data in request.documents.get(correlation.from_data).get("data")
+        ]
+
+        covariates = UnivariateTimeSeriesDataBundle(
+            dataset=from_data,
+            value_column=SimpleNamespace(
+                name=covariate_name,
+                floor=covariate_forecasting_options.caps.from_index.floor,
+                ceiling=covariate_forecasting_options.caps.from_index.ceiling,
+            ),
+        )
+
+        covariates.predict_prophet(options=covariate_forecasting_options)
+
+        to_data = [
+            {"ds": data.get("date"), target_name: get(data, target_name)}
+            for data in request.documents.get(correlation.to_data)["data"]
+        ]
+
+        # targets, targets_prediction_horizon = prepare_dataset(
+        #     dataset=to_data,
+        #     time_column="ds",
+        #     aggregation=aggregation,
+        #     grain=grain,
+
+        # )
+        targets = UnivariateTimeSeriesDataBundle(
+            dataset=to_data,
+            value_column=SimpleNamespace(
+                name=target_name,
+                floor=target_forecasting_options.caps.to_index.floor,
+                ceiling=target_forecasting_options.caps.to_index.ceiling,
+            ),
+        )
+
+        targets.predict_prophet(
+            options=target_forecasting_options, covariates=covariates
+        )
+
+        # return targets.historical_forecasts
+
+        output["correlations"][correlation.id] = {
+            "type": {
+                "model": correlation.type,
+                "growth": target_forecasting_options.growth,
+                "bounds": {
+                    "min": targets.date_bounds.min,
+                    "max": targets.date_bounds.max,
+                },
+            },
+            "predictions": {
+                "historicalForecasts": targets.historical_forecasts,
+                "futureForecasts": targets.future_forecasts,
+            },
+            # "prediction": targets.predictions.rename(
+            # columns={
+            # "ds": "date",
+            # "yhat": "prediction",
+            # "yhat_lower": "prediction_lower_bound",
+            # "yhat_upper": "prediction_upper_bound",
+            # "trend_lower": "trend_lower_bound",
+            # "trend_upper": "trend_upper_bound",
+            # }
+            # ).to_dict(orient="records")
+        }
+
+    return output

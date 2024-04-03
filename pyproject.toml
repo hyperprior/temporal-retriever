@@ -1,6 +1,6 @@
 [project]
 name = "temporal-retriever"
-version = "0.4.8"
+version = "0.5.0"
 description = "Rapid Time Series, LLM Aware"
 authors = [{name = "chrisaddy", email = "chris.william.addy@gmail.com"}]
 license = "MIT"
@@ -15,6 +15,7 @@ dependencies = [
   "loguru>=0.7.2,<0.8.0",
   "statsmodels>=0.14.1,<0.15.0",
   "pandas-stubs>=2.2.1,<2.3.0",
+  "icecream"
 ]
 
 

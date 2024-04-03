@@ -4,6 +4,8 @@
  
   # https://devenv.sh/basics/
   env.GREET = "devenv";
+  env.LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+  
 
   # https://devenv.sh/packages/
   packages = with pkgs; [ 
