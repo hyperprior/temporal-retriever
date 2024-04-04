@@ -100,6 +100,7 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
     output = {"correlations": {}}
 
     for correlation in correlations:
+
         output["correlations"][correlation.id] = {"type": correlation.type}
 
         grain = correlation.grain
@@ -439,7 +440,7 @@ class UnivariateTimeSeriesDataBundle:
             case _:
                 raise ValueError(f"Unsupported granularity: {grain}")
 
-    def predict_prophet(self, options, covariates=None):
+    def predict_prophet(self, options, covariates=None, is_target: bool = False):
         data = self.dataframe
 
         if options.growth == "logistic":
@@ -475,7 +476,7 @@ class UnivariateTimeSeriesDataBundle:
 
         predictions["ds"] = pd.to_datetime(predictions["ds"])
 
-        if not covariates:
+        if not is_target:
             predictions = predictions.merge(self.dataframe, how="left", on="ds")
             predictions[self.value_column.name] = predictions["y"].combine_first(
                 predictions["yhat"]
@@ -494,7 +495,6 @@ async def saturating_growth(request: SaturatingGrowthRequest):
     output = {"correlations": {}}
 
     for correlation in correlations:
-
         grain = correlation.grain
         aggregation = correlation.aggregation
         covariate_name: str = correlation.from_index
@@ -517,20 +517,15 @@ async def saturating_growth(request: SaturatingGrowthRequest):
             ),
         )
 
-        covariates.predict_prophet(options=covariate_forecasting_options)
+        covariates.predict_prophet(
+            options=covariate_forecasting_options, is_target=False
+        )
 
         to_data = [
             {"ds": data.get("date"), target_name: get(data, target_name)}
             for data in request.documents.get(correlation.to_data)["data"]
         ]
 
-        # targets, targets_prediction_horizon = prepare_dataset(
-        #     dataset=to_data,
-        #     time_column="ds",
-        #     aggregation=aggregation,
-        #     grain=grain,
-
-        # )
         targets = UnivariateTimeSeriesDataBundle(
             dataset=to_data,
             value_column=SimpleNamespace(
@@ -541,10 +536,8 @@ async def saturating_growth(request: SaturatingGrowthRequest):
         )
 
         targets.predict_prophet(
-            options=target_forecasting_options, covariates=covariates
+            options=target_forecasting_options, covariates=covariates, is_target=True
         )
-
-        # return targets.historical_forecasts
 
         output["correlations"][correlation.id] = {
             "type": {
@@ -559,16 +552,53 @@ async def saturating_growth(request: SaturatingGrowthRequest):
                 "historicalForecasts": targets.historical_forecasts,
                 "futureForecasts": targets.future_forecasts,
             },
-            # "prediction": targets.predictions.rename(
-            # columns={
-            # "ds": "date",
-            # "yhat": "prediction",
-            # "yhat_lower": "prediction_lower_bound",
-            # "yhat_upper": "prediction_upper_bound",
-            # "trend_lower": "trend_lower_bound",
-            # "trend_upper": "trend_upper_bound",
-            # }
-            # ).to_dict(orient="records")
+        }
+
+    return output
+
+
+@app.post("/saturating-growth/single")
+async def saturating_growth(request: SaturatingGrowthRequest):
+    correlations = request.analytics_options.correlations
+
+    output = {"correlations": {}}
+
+    for correlation in correlations:
+
+        grain = correlation.grain
+        aggregation = correlation.aggregation
+        target_name: str = correlation.to_index
+        target_forecasting_options = correlation.forecasting_options.to_index
+
+        to_data = [
+            {"ds": data.get("date"), target_name: get(data, target_name)}
+            for data in request.documents.get(correlation.to_data)["data"]
+        ]
+
+        targets = UnivariateTimeSeriesDataBundle(
+            dataset=to_data,
+            value_column=SimpleNamespace(
+                name=target_name,
+                floor=target_forecasting_options.caps.to_index.floor,
+                ceiling=target_forecasting_options.caps.to_index.ceiling,
+            ),
+        )
+
+        targets.predict_prophet(options=target_forecasting_options, is_target=True)
+
+        output["correlations"][correlation.id] = {
+            "type": {
+                "model": correlation.type,
+                "growth": target_forecasting_options.growth,
+                "bounds": {
+                    "min": targets.date_bounds.min,
+                    "max": targets.date_bounds.max,
+                },
+            },
+            "predictions": {
+                "historicalForecasts": targets.historical_forecasts,
+                "futureForecasts": targets.future_forecasts,
+            },
         }
 
     return output
