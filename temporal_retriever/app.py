@@ -100,7 +100,6 @@ async def analyze_datasets(request: AnalyticsRequest) -> AnalyticsResponse:
     output = {"correlations": {}}
 
     for correlation in correlations:
-
         output["correlations"][correlation.id] = {"type": correlation.type}
 
         grain = correlation.grain
@@ -321,10 +320,10 @@ class UnivariateTimeSeriesDataBundle:
         *,
         dataset: list[dict[str, str | float]],
         value_column: str,
+        prediction_horizon: int | None,
         time_column: str = "ds",
         aggregation: str = "sum",
         grain: str | None = None,
-        prediction_horizon: int | None = None,
     ):
         self.dataset = dataset
         self.time_column = time_column
@@ -499,6 +498,7 @@ async def saturating_growth(request: SaturatingGrowthRequest):
         aggregation = correlation.aggregation
         covariate_name: str = correlation.from_index
         target_name: str = correlation.to_index
+        prediction_horizon = correlation.prediction_horizon
 
         covariate_forecasting_options = correlation.forecasting_options.from_index
         target_forecasting_options = correlation.forecasting_options.to_index
@@ -510,6 +510,7 @@ async def saturating_growth(request: SaturatingGrowthRequest):
 
         covariates = UnivariateTimeSeriesDataBundle(
             dataset=from_data,
+            prediction_horizon=prediction_horizon,
             value_column=SimpleNamespace(
                 name=covariate_name,
                 floor=covariate_forecasting_options.caps.from_index.floor,
@@ -528,6 +529,7 @@ async def saturating_growth(request: SaturatingGrowthRequest):
 
         targets = UnivariateTimeSeriesDataBundle(
             dataset=to_data,
+            prediction_horizon=prediction_horizon,
             value_column=SimpleNamespace(
                 name=target_name,
                 floor=target_forecasting_options.caps.to_index.floor,
@@ -564,7 +566,6 @@ async def saturating_growth(request: SaturatingGrowthRequest):
     output = {"correlations": {}}
 
     for correlation in correlations:
-
         grain = correlation.grain
         aggregation = correlation.aggregation
         target_name: str = correlation.to_index
@@ -577,12 +578,16 @@ async def saturating_growth(request: SaturatingGrowthRequest):
 
         targets = UnivariateTimeSeriesDataBundle(
             dataset=to_data,
+            prediction_horizon=correlation.prediction_horizon,
             value_column=SimpleNamespace(
                 name=target_name,
                 floor=target_forecasting_options.caps.to_index.floor,
                 ceiling=target_forecasting_options.caps.to_index.ceiling,
             ),
         )
+
+        print(f"{correlation.prediction_horizon=}")
+        print(f"{targets.prediction_horizon=}")
 
         targets.predict_prophet(options=target_forecasting_options, is_target=True)
 
